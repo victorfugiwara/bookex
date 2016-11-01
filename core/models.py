@@ -37,7 +37,6 @@ class Book(models.Model):
 
     def __str__(self):
         return self.name + ' (' + self.author.last_name + ', ' + self.author.first_name + ')'
-        return self.image_tag()
 
     def image_tag(self):
         return u'<img src="/media/%s" />' % self.picture
