@@ -35,3 +35,9 @@ class WishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wish
         fields = ('id', 'profile', 'book')
+
+
+class CombinationSerializer(serializers.Serializer):
+    profile = UserProfileSerializer()
+    book_wish = BookSerializer()
+    book_library = BookSerializer()

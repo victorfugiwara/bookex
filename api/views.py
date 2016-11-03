@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .serializers import UserProfileSerializer, AuthorSerializer, CategorySerializer, BookSerializer, LibrarySerializer, WishSerializer
+from .serializers import UserProfileSerializer, AuthorSerializer, CategorySerializer, BookSerializer, LibrarySerializer, WishSerializer, CombinationSerializer
 from core.models import UserProfile, Author, Category, Book, Library, Wish
 
 from django.http import Http404
@@ -151,7 +151,6 @@ class Combinations(APIView):
             # apply filter of the book, if isn't empty
             user_wishes = user_wishes.filter(book_id=id_book_wish)
 
-        
 
         for lib in user_libraries:
             # for each book from user's library, find possible exchanges
@@ -167,12 +166,17 @@ class Combinations(APIView):
                     # search the book of the other users library on the user wishes
                     if user_wishes.filter(book_id=others_lib.book_id).exists():
                         # user that have the book, his name, book that the user wants, book of user's library that he'll change
-                        c = Combination()
-                        c.id_user=others_lib.profile_id
-                        c.name=others_lib.profile.name
-                        c.book_wish=others_lib.book
-                        c.book_library=lib.book
+                        c = {
+                            'profile' : others_lib.profile,
+                            'book_wish' : others_lib.book,
+                            'book_library' : lib.book
+                            }
+                        #c.profile = UserProfileSerializer(others_lib.profile)
+                        #c.book_wish = BookSerializer(others_lib.book)
+                        #c.book_library = BookSerializer(lib.book)
 
                         combinations.append(c)
 
-        return Response(combinations)
+        print(combinations)
+
+        return Response(CombinationSerializer(combinations, many=True).data)
