@@ -1,11 +1,11 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.http import Http404
+
 from .serializers import UserProfileSerializer, AuthorSerializer, CategorySerializer, BookSerializer, LibrarySerializer, WishSerializer, CombinationSerializer
 from core.models import UserProfile, Author, Category, Book, Library, Wish
 
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all().order_by('name')
@@ -13,17 +13,17 @@ class UserProfileViewSet(viewsets.ModelViewSet):
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
-    queryset = Author.objects.all()
+    queryset = Author.objects.all().order_by('last_name')
     serializer_class = AuthorSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
 
 
 class BookViewSet(viewsets.ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().order_by('name')
     serializer_class = BookSerializer
 
 
@@ -116,20 +116,9 @@ class BooksAuthor(APIView):
         return Response(serializer.data)
 
 
-class Combination():
-    id_user = None
-    name = None
-    book_wish = None
-    book_library = None
-
-    def __str__(self):
-        return str(self.id_user) + ' - ' + self.name + ' - ' + str(self.book_wish) + ' - ' + str(self.book_library)
-
 class Combinations(APIView):
 
     def get(self, request, id_user, format=None):
-        combinations = []
-
         id_book_library = None
         id_book_wish = None
         # parameters to filter the book from his library that he'll change and the one that he wants
@@ -152,6 +141,7 @@ class Combinations(APIView):
             user_wishes = user_wishes.filter(book_id=id_book_wish)
 
 
+        combinations = []
         for lib in user_libraries:
             # for each book from user's library, find possible exchanges
 
@@ -171,12 +161,7 @@ class Combinations(APIView):
                             'book_wish' : others_lib.book,
                             'book_library' : lib.book
                             }
-                        #c.profile = UserProfileSerializer(others_lib.profile)
-                        #c.book_wish = BookSerializer(others_lib.book)
-                        #c.book_library = BookSerializer(lib.book)
 
                         combinations.append(c)
-
-        print(combinations)
 
         return Response(CombinationSerializer(combinations, many=True).data)
