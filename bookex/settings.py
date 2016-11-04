@@ -122,8 +122,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = '/home/victor/projects/bookex/src/media/'
-MEDIA_URL = 'media/'
+MEDIA_ROOT = '/opt/bookex/'
+MEDIA_URL = 'bookex/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAuthenticated',), 

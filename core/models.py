@@ -12,7 +12,7 @@ class UserProfile(models.Model):
         return self.name
 
     def image_tag(self):
-        return u'<img src="/media/%s" />' % self.picture
+        return u'<img src="/bookex/%s" />' % self.picture
     image_tag.short_description = 'Picture'
     image_tag.allow_tags = True
 
@@ -42,7 +42,7 @@ class Book(models.Model):
         return self.name + ' (' + self.author.last_name + ', ' + self.author.first_name + ')'
 
     def image_tag(self):
-        return u'<img src="/media/%s" />' % self.picture
+        return u'<img src="/bookex/%s" />' % self.picture
     image_tag.short_description = 'Picture'
     image_tag.allow_tags = True
 
