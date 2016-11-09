@@ -1,12 +1,14 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 class UserProfile(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
-    picture = models.ImageField(upload_to = 'profile_pictures/', default = 'no-image.png')
+    picture = models.ImageField(
+        upload_to='profile_pictures/',
+        default='no-image.png')
 
     def __str__(self):
         return self.name
@@ -34,12 +36,18 @@ class Author(models.Model):
 
 class Book(models.Model):
     name = models.CharField(max_length=200)
-    picture = models.ImageField(upload_to = 'book_pictures/', default = 'no-image.png')
+    picture = models.ImageField(
+        upload_to='book_pictures/',
+        default='no-image.png')
     author = models.ForeignKey(Author)
     category = models.ForeignKey(Category)
 
     def __str__(self):
-        return self.name + ' (' + self.author.last_name + ', ' + self.author.first_name + ')'
+        return self.name
+        ' ('
+        self.author.last_name + ', '
+        self.author.first_name
+        ')'
 
     def image_tag(self):
         return u'<img src="/bookex/%s" />' % self.picture

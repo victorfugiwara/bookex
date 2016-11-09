@@ -1,5 +1,7 @@
+from core.models import Author, Book, Category, Library, UserProfile, Wish
+
 from rest_framework import serializers
-from core.models import UserProfile, Author, Category, Book, Library, Wish
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,7 +1,8 @@
+from django.conf.urls import include, url
+
 from rest_framework import routers
-from django.conf.urls import url, include
+
 from rest_framework_jwt.views import obtain_jwt_token
-from rest_framework.urlpatterns import format_suffix_patterns
 
 from . import views
 
@@ -17,10 +18,14 @@ urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^login', obtain_jwt_token),
     url(r'^users/(?P<id_user>[0-9]+)/libraries$', views.UserLibrary.as_view()),
-    url(r'^users/(?P<id_user>[0-9]+)/libraries/(?P<id_book>[0-9]+)$', views.UserLibraryDetail.as_view()),
+    url(r'^users/(?P<id_user>[0-9]+)/libraries/(?P<id_book>[0-9]+)$',
+        views.UserLibraryDetail.as_view()),
     url(r'^users/(?P<id_user>[0-9]+)/wishes$', views.UserWish.as_view()),
-    url(r'^users/(?P<id_user>[0-9]+)/wishes/(?P<id_book>[0-9]+)$', views.UserWishDetail.as_view()),
-    url(r'^categories/(?P<id_category>[0-9]+)/books$', views.BooksCategory.as_view()),
+    url(r'^users/(?P<id_user>[0-9]+)/wishes/(?P<id_book>[0-9]+)$',
+        views.UserWishDetail.as_view()),
+    url(r'^categories/(?P<id_category>[0-9]+)/books$',
+        views.BooksCategory.as_view()),
     url(r'^authors/(?P<id_author>[0-9]+)/books$', views.BooksAuthor.as_view()),
-    url(r'^users/(?P<id_user>[0-9]+)/combinations$', views.Combinations.as_view()),
+    url(r'^users/(?P<id_user>[0-9]+)/combinations$',
+        views.Combinations.as_view()),
 ]

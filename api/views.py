@@ -1,10 +1,20 @@
-from rest_framework import viewsets, status
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from core.models import Author, Book, Category, Library, UserProfile, Wish
+
 from django.http import Http404
 
-from .serializers import UserProfileSerializer, AuthorSerializer, CategorySerializer, BookSerializer, LibrarySerializer, WishSerializer, CombinationSerializer
-from core.models import UserProfile, Author, Category, Book, Library, Wish
+from rest_framework import status, viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import (
+    AuthorSerializer,
+    BookSerializer,
+    CategorySerializer,
+    CombinationSerializer,
+    LibrarySerializer,
+    UserProfileSerializer,
+    WishSerializer
+)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):
@@ -41,7 +51,10 @@ def jwt_response_payload_handler(token, user=None, request=None):
     profile = UserProfile.objects.get(user=user)
     return {
         'token': token,
-        'profile': UserProfileSerializer(profile, context={'request': request}).data
+        'profile': UserProfileSerializer(
+            profile,
+            context={'request': request}
+        ).data
     }
 
 
@@ -64,13 +77,15 @@ class UserLibraryDetail(APIView):
 
     def delete(self, request, id_user, id_book, format=None):
         try:
-            library = Library.objects.filter(profile_id=id_user, book_id=id_book)
+            library = Library.objects.filter(
+                profile_id=id_user,
+                book_id=id_book
+            )
             library.delete()
 
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Library.DoesNotExist:
             raise Http404
-        
 
 
 class UserWish(APIView):
@@ -98,7 +113,7 @@ class UserWishDetail(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Wish.DoesNotExist:
             raise Http404
-        
+
 
 class BooksCategory(APIView):
 
@@ -121,12 +136,12 @@ class Combinations(APIView):
     def get(self, request, id_user, format=None):
         id_book_library = None
         id_book_wish = None
-        # parameters to filter the book from his library that he'll change and the one that he wants
+        # parameters to filter the book from his library that he'll change
+        # and the one that he wants
         if 'id_book_library' in request.query_params:
             id_book_library = request.query_params['id_book_library']
         if 'id_book_wish' in request.query_params:
             id_book_wish = request.query_params['id_book_wish']
-
 
         # get user library
         user_libraries = Library.objects.filter(profile_id=id_user)
@@ -134,33 +149,36 @@ class Combinations(APIView):
             # apply filter of the book, if isn't empty
             user_libraries = user_libraries.filter(book_id=id_book_library)
 
-
         user_wishes = Wish.objects.filter(profile_id=id_user)
         if id_book_wish:
             # apply filter of the book, if isn't empty
             user_wishes = user_wishes.filter(book_id=id_book_wish)
-
 
         combinations = []
         for lib in user_libraries:
             # for each book from user's library, find possible exchanges
 
             # find look for people who wants the user's book
-            others_wishes = Wish.objects.exclude(profile_id=id_user).filter(book_id=lib.book_id)
+            others_wishes = Wish.objects.exclude(profile_id=id_user).filter(
+                book_id=lib.book_id)
 
             for others_wish in others_wishes:
-                # for each other users wishes, search for a book that the user wants
-                others_libraries = Library.objects.filter(profile_id=others_wish.profile_id)
+                # for each other users wishes, search for a book that the
+                # user wants
+                others_libraries = Library.objects.filter(
+                    profile_id=others_wish.profile_id)
 
                 for others_lib in others_libraries:
-                    # search the book of the other users library on the user wishes
+                    # search the book of the other users library on the
+                    # user wishes
                     if user_wishes.filter(book_id=others_lib.book_id).exists():
-                        # user that have the book, his name, book that the user wants, book of user's library that he'll change
+                        # user that have the book, his name, book that the
+                        # user wants, book of user's library that he'll change
                         c = {
-                            'profile' : others_lib.profile,
-                            'book_wish' : others_lib.book,
-                            'book_library' : lib.book
-                            }
+                            'profile': others_lib.profile,
+                            'book_wish': others_lib.book,
+                            'book_library': lib.book
+                        }
 
                         combinations.append(c)
 
