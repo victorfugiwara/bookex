@@ -1,11 +1,19 @@
 """Defines the endpoints of the api."""
 from core.models import Author, Book, Category, Library, UserProfile, Wish
 
+from django.contrib.auth.models import User
+
 from django.http import Http404
 
 from rest_framework import status, viewsets
+from rest_framework.decorators import (
+    authentication_classes,
+    permission_classes
+)
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from rest_framework_jwt.settings import api_settings
 
 from .serializers import (
     AuthorSerializer,
@@ -21,7 +29,7 @@ from .serializers import (
 class UserProfileViewSet(viewsets.ModelViewSet):
     """Define the User profile endpoints."""
 
-    queryset = UserProfile.objects.all().order_by('name')
+    queryset = UserProfile.objects.all().order_by('id')
     serializer_class = UserProfileSerializer
 
 
@@ -213,3 +221,107 @@ class Combinations(APIView):
                         combinations.append(c)
 
         return Response(CombinationSerializer(combinations, many=True).data)
+
+
+class Profile(APIView):
+    """Update profile endpoint."""
+
+    def put(self, request, id_user, format=None):
+        """Edit the profile data."""
+        try:
+            profile = UserProfile.objects.get(id=id_user)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {'error_message': 'Invalid user.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        password = None
+        if 'password' in request.data:
+            password = request.data['password']
+
+        success = profile.user.check_password(password)
+        if not success:
+            return Response(
+                {'error_message': 'Invalid password.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if 'new_password' in request.data:
+            if 'confirm_new_password' not in request.data:
+                return Response(
+                    {'error_message':
+                        'Invalid confirmation of the new password.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            new_password = request.data['new_password']
+            confirm_new_password = request.data['confirm_new_password']
+
+            if new_password != confirm_new_password:
+                return Response(
+                    {'error_message':
+                        'Invalid confirmation of the new password.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            profile.user.set_password(new_password)
+
+        if 'first_name' in request.data:
+            profile.user.first_name = request.data['first_name']
+
+        if 'last_name' in request.data:
+            profile.user.last_name = request.data['last_name']
+
+        if 'email' in request.data:
+            profile.user.email = request.data['email']
+
+        profile.user.save()
+
+        serializer = UserProfileSerializer(
+            profile,
+            context={'request': request})
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@authentication_classes([])
+@permission_classes([])
+class Register(APIView):
+    """Register a new user endpoint."""
+
+    def post(self, request, format=None):
+        """Insert a new user and a profile."""
+        try:
+            username = request.data['username']
+            email = request.data['email']
+            password = request.data['password']
+        except Exception:
+            return Response(
+                {'error_message':
+                    'Fields required: username, email, password.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        new_user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        new_profile = UserProfile(user=new_user)
+        new_profile.save()
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(new_profile.user)
+        token = jwt_encode_handler(payload)
+
+        user_with_token = {
+            'token': token,
+            'profile': UserProfileSerializer(
+                new_profile,
+                context={'request': request}
+            ).data
+        }
+
+        return Response(user_with_token, status=status.HTTP_201_CREATED)

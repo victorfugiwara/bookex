@@ -1,12 +1,22 @@
 from core.models import Author, Book, Category, Library, UserProfile, Wish
 
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False)
+
     class Meta:
         model = UserProfile
-        fields = ('id', 'name', 'email', 'picture',)
+        fields = ('id', 'picture', 'user')
 
 
 class AuthorSerializer(serializers.ModelSerializer):

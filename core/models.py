@@ -7,15 +7,13 @@ class UserProfile(models.Model):
     """User data."""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
     picture = models.ImageField(
         upload_to='profile_pictures/',
         default='no-image.png')
 
     def __str__(self):
         """Return the name of the user."""
-        return self.name
+        return self.user.first_name + ' ' + self.user.last_name
 
     def image_tag(self):
         """Return the <img> tag filled with the full path of the picture."""

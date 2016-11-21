@@ -18,6 +18,8 @@ router.register(r'wishes', views.WishViewSet)
 urlpatterns = [
     url(r'^', include(router.urls)),
     url(r'^login', obtain_jwt_token),
+    url(r'^register$', views.Register.as_view()),
+    url(r'^profile/(?P<id_user>[0-9]+)$', views.Profile.as_view()),
     url(r'^users/(?P<id_user>[0-9]+)/libraries$', views.UserLibrary.as_view()),
     url(r'^users/(?P<id_user>[0-9]+)/libraries/(?P<id_book>[0-9]+)$',
         views.UserLibraryDetail.as_view()),

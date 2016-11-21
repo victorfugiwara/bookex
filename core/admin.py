@@ -8,7 +8,7 @@ class BookAdmin(admin.ModelAdmin):
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'image_tag', )
+    list_display = ('user', 'image_tag', )
 
 
 class LibraryAdmin(admin.ModelAdmin):
