@@ -1,10 +1,22 @@
+from core.models import Author, Book, Category, Library, UserProfile, Wish
+
+from django.contrib.auth.models import User
+
 from rest_framework import serializers
-from core.models import UserProfile, Author, Category, Book, Library, Wish
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False)
+
     class Meta:
         model = UserProfile
-        fields = ('id', 'name', 'email', 'picture',)
+        fields = ('id', 'picture', 'user')
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -20,18 +32,33 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(many=False)
+    category = CategorySerializer(many=False)
+
     class Meta:
         model = Book
         fields = ('id', 'name', 'picture', 'author', 'category')
 
 
 class LibrarySerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(many=False)
+    book = BookSerializer(many=False)
+
     class Meta:
         model = Library
         fields = ('id', 'profile', 'book')
 
 
 class WishSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(many=False)
+    book = BookSerializer(many=False)
+
     class Meta:
         model = Wish
         fields = ('id', 'profile', 'book')
+
+
+class CombinationSerializer(serializers.Serializer):
+    profile = UserProfileSerializer()
+    book_wish = BookSerializer()
+    book_library = BookSerializer()
