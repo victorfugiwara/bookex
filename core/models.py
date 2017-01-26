@@ -18,7 +18,8 @@ class UserProfile(models.Model):
     def image_tag(self):
         """Return the <img> tag filled with the full path of the picture."""
         # return '<img src="/media/%s" />' % self.picture
-        return '<img src="/media/{}" />'.format(self.picture)
+        return '<img style="max-height: 100px;" src="/media/{}" />'.format(
+            self.picture)
     image_tag.short_description = 'Picture'
     image_tag.allow_tags = True
 
@@ -69,7 +70,8 @@ class Book(models.Model):
     def image_tag(self):
         """Return the <img> tag filled with the full path of the picture."""
         # return '<img src="/media/%s" />' % self.picture
-        return '<img src="/media/{}" />'.format(self.picture)
+        return '<img style="max-height: 100px;" src="/media/{}" />'.format(
+            self.picture)
     image_tag.short_description = 'Picture'
     image_tag.allow_tags = True
 

@@ -32,18 +32,27 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class BookSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(many=False)
+    category = CategorySerializer(many=False)
+
     class Meta:
         model = Book
         fields = ('id', 'name', 'picture', 'author', 'category')
 
 
 class LibrarySerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(many=False)
+    book = BookSerializer(many=False)
+
     class Meta:
         model = Library
         fields = ('id', 'profile', 'book')
 
 
 class WishSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(many=False)
+    book = BookSerializer(many=False)
+
     class Meta:
         model = Wish
         fields = ('id', 'profile', 'book')

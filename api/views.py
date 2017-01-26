@@ -91,7 +91,7 @@ class UserLibrary(APIView):
 
     def post(self, request, id_user, format=None):
         """Include a book on the library of the user."""
-        library = Library(profile_id=id_user, book_id=request.data['book_id'])
+        library = Library(profile_id=id_user, book_id=request.data['id'])
         library.save()
         serializer = LibrarySerializer(library)
 
@@ -126,7 +126,7 @@ class UserWish(APIView):
 
     def post(self, request, id_user, format=None):
         """Insert a book on the list of wishes of the user."""
-        wish = Wish(profile_id=id_user, book_id=request.data['book_id'])
+        wish = Wish(profile_id=id_user, book_id=request.data['id'])
         wish.save()
         serializer = WishSerializer(wish)
 
